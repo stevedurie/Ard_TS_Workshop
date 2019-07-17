@@ -1,5 +1,4 @@
 
-
 #include <TaskScheduler.h>
 #include <Adafruit_NeoPixel.h>
 
@@ -10,7 +9,6 @@
 #define NUMPIXELS 16
 
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
-
 
 void sensorCb();
 void mainCb();
@@ -58,8 +56,6 @@ const int analogOutPin = 9; // Analog output pin that the LED is attached to
 int sensorValue = 0;        // value read from the pot
 int outputValue = 0;        // value output to the PWM (analog out)
 
-
-
 //Create main task scheduling object
 Scheduler runner;
 
@@ -78,7 +74,6 @@ void setup() {
   runner.addTask(tB);
   Serial.println("tasks added");
 
-  
   // turning on or 'enabling' each task
   tSense.enable();
   tMain.enable();
@@ -124,8 +119,6 @@ void mainCb() {
     pixels.show();
   }
 
-  
-
 }
 
 // All 3 color call backs are used at different rates depending on what was defined in
@@ -170,9 +163,8 @@ void grnCb() {
 
 void bluCb() {
 
- tB.setInterval(100);
+ tB.setInterval(100);  // changing the rate at what tb runs each task
 
-  
   // clear blu buffer
   for (int i = 0; i < NUMPIXELS; i++) {
     bluAr[i] = 0;    // turn the LED off by making the voltage LOW
@@ -183,7 +175,9 @@ void bluCb() {
 //    bluCounter = NUMPIXELS - 1;
 //  }
 
-  bluCounter  =  outputValue;
+  // using the analog input to control which blue led is shown
+  bluCounter  =  outputValue;  
+  
 
   // set color to current blu led in count
   bluAr[bluCounter] = 200;
