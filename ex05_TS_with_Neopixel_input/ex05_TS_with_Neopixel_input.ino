@@ -11,6 +11,8 @@
 
 Adafruit_NeoPixel pixels(NUMPIXELS, PIN, NEO_GRB + NEO_KHZ800);
 
+
+void sensorCb();
 void mainCb();
 void redCb();
 void grnCb();
@@ -21,6 +23,7 @@ void bluCb();
 // and the callback function to call for each cycle [&NameOfFunction]
 // i.e. nameOfTask(interval,iterations,&NameOfFunction)
 
+Task tSense(3, TASK_FOREVER, &sensorCb);
 Task tMain(5, TASK_FOREVER, &mainCb);
 Task tR(100, TASK_FOREVER, &redCb);
 Task tG(250, TASK_FOREVER, &grnCb);
@@ -47,6 +50,16 @@ int grnCounter = 0;
 int bluCounter = NUMPIXELS - 1;
 
 
+//input sensors
+
+const int analogInPin = A0;  // Analog input pin that the potentiometer is attached to
+const int analogOutPin = 9; // Analog output pin that the LED is attached to
+
+int sensorValue = 0;        // value read from the pot
+int outputValue = 0;        // value output to the PWM (analog out)
+
+
+
 //Create main task scheduling object
 Scheduler runner;
 
@@ -58,7 +71,7 @@ void setup() {
   Serial.println("Initialized scheduler");
 
  // adding the tasks to the TS object
- 
+  runner.addTask(tSense);
   runner.addTask(tMain);
   runner.addTask(tR);
   runner.addTask(tG);
@@ -67,6 +80,7 @@ void setup() {
 
   
   // turning on or 'enabling' each task
+  tSense.enable();
   tMain.enable();
   tR.enable();
   tG.enable();
@@ -88,6 +102,20 @@ void loop() {
 // This main Callback is used to manage the hardware and update it as fast as possible.
 // See Task tMain
 
+
+void sensorCb() {
+   // read the analog in value:
+  sensorValue = analogRead(analogInPin);
+  // map it to the range of the analog out:
+  outputValue = map(sensorValue, 0, 1023, 15,0);
+  
+  Serial.print("sensor = ");
+  Serial.print(sensorValue);
+  Serial.print("\t output = ");
+  Serial.println(outputValue);
+
+}
+
 void mainCb() {
 
   for ( int i; i < NUMPIXELS; i++) {
@@ -96,6 +124,7 @@ void mainCb() {
     pixels.show();
   }
 
+  
 
 }
 
@@ -140,6 +169,9 @@ void grnCb() {
 }
 
 void bluCb() {
+
+ tB.setInterval(100);
+
   
   // clear blu buffer
   for (int i = 0; i < NUMPIXELS; i++) {
@@ -147,13 +179,15 @@ void bluCb() {
   }
   
   // reset counter if out of range
-  if ( bluCounter < 0 ) {
-    bluCounter = NUMPIXELS - 1;
-  }
+//  if ( bluCounter < 0 ) {
+//    bluCounter = NUMPIXELS - 1;
+//  }
+
+  bluCounter  =  outputValue;
 
   // set color to current blu led in count
   bluAr[bluCounter] = 200;
-  bluCounter--;  // note we are going down in sequence
+ // bluCounter--;  // note we are going down in sequence
 
 
 }
