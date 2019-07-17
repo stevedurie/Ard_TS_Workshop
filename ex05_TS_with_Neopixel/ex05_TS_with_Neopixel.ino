@@ -1,4 +1,7 @@
-
+// This is a simple version of using a neoPixel strip with TS.
+// Note the important use of the arrays (redAr,grnAr, bluAr) to create a buffer
+// that all hardware fuctions call from. There are no direct calls the neoPixels
+// but only calls form the arrays to create a 'pixel buffer'.
 
 #include <TaskScheduler.h>
 #include <Adafruit_NeoPixel.h>
@@ -46,7 +49,6 @@ int redCounter = 0;
 int grnCounter = 0;
 int bluCounter = NUMPIXELS - 1;
 
-
 //Create main task scheduling object
 Scheduler runner;
 
@@ -58,7 +60,6 @@ void setup() {
   Serial.println("Initialized scheduler");
 
  // adding the tasks to the TS object
- 
   runner.addTask(tMain);
   runner.addTask(tR);
   runner.addTask(tG);
@@ -95,7 +96,6 @@ void mainCb() {
     pixels.setPixelColor(i, pixels.Color(redAr[i], grnAr[i], bluAr[i]));
     pixels.show();
   }
-
 
 }
 
